@@ -27,5 +27,5 @@ new features and help me learn Rust.
 
 ## Roadmap
 
-- [ ] Save todos into a file a read from it.
+- [ ] Save todos into a file and read from it.
 - [ ] Add commandline arguments.
