@@ -2,6 +2,13 @@
 name = "rtodo"
 version = "0.1.0"
 edition = "2021"
+description = "A very simple to-do list manager"
+keywords = ["todo","manager","tui","to-do-list"]
+readme = "README.md"
+license = "MIT"
+authors = ["Tiago Correia <tiagorcorreia87@gmail.com"]
+repository = "https://github.com/TiagoRCorreia/rtodo"
+categories = ["tui"]
 
 [dependencies]
 colored = "2.0"
