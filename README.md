@@ -1,3 +1,4 @@
+[![crates.io](https://img.shields.io/crates/v/rtodo)](https://crates.io/crates/rtodo)
 ![GitHub](https://img.shields.io/github/license/tiagorcorreia/rtodo)
 ![maintenance](https://img.shields.io/maintenance/yes/2022)
 [![contributors](https://img.shields.io/github/contributors/tiagorcorreia/rtodo)](https://github.com/hoodie/notify-rust/graphs/contributors)
