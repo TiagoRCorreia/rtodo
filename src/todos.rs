@@ -11,21 +11,5 @@ impl Todo{
             description,
         }
     }
-
-    pub fn get_title(&self) -> &str {
-        &self.title 
-    }
-
-    pub fn get_description(&self) -> &str{
-        &self.description
-    }
-
-    pub fn set_title(&mut self, title:String){
-       self.title = title; 
-    }
-
-    pub fn set_description(&mut self, description:String){
-        self.description = description;
-    }
 }
 
