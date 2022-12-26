@@ -71,7 +71,7 @@ fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-fn update_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -90,7 +90,7 @@ fn update_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> 
 
     let id = id.trim().to_string().parse::<usize>()?;
 
-    for (i, z) in todos.into_iter().enumerate() {
+    for (i, z) in todos.iter_mut().enumerate() {
         if i == id {
             z.title = title.to_string();
             z.description = desc.to_string();
@@ -128,13 +128,13 @@ fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
 
     let id = user_input()?.trim().to_string();
 
-    if id.contains("1") {
+    if id.contains('1') {
         show_todos(todos);
         Ok(false)
-    } else if id.contains("2") {
+    } else if id.contains('2') {
         add_todo(todos)?;
         Ok(true)
-    } else if id.contains("3") {
+    } else if id.contains('3') {
         remove_todo(todos)?;
         Ok(true)
     } else {
@@ -164,7 +164,7 @@ fn main() {
             Err(e) => panic!("Error get user input {e}"),
         };
 
-        if user.contains("1") {
+        if user.contains('1') {
             show_todos(&todos);
 
             while let Ok(e) = sub_menu(&mut todos) {
@@ -173,21 +173,21 @@ fn main() {
                 }
                 show_todos(&todos);
             }
-        } else if user.contains("2") {
+        } else if user.contains('2') {
             if let Err(e) = add_todo(&mut todos) {
                 println!("Error add todo!!! {e}");
             }
-        } else if user.contains("3") {
+        } else if user.contains('3') {
             show_todos(&todos);
             if let Err(e) = update_todo(&mut todos) {
                 println!("Error update todo!!! {e}");
             }
-        } else if user.contains("4") {
+        } else if user.contains('4') {
             show_todos(&todos);
             if let Err(e) = remove_todo(&mut todos) {
                 println!("Error remove todo!!! {e}");
             }
-        } else if user.contains("5") {
+        } else if user.contains('5') {
             process::exit(0);
         }
     }
