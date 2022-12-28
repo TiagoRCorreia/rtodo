@@ -40,7 +40,7 @@ fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Show todos in formatted way
+/// Show todos in a formatted table
 fn show_todos(todos: &Vec<Todo>) {
     // Clear the screen
     Command::new("clear").status().unwrap();
@@ -60,7 +60,7 @@ fn show_todos(todos: &Vec<Todo>) {
         "".blue().bold()
     );
 
-    // Check if todos are empty if not show them
+    // Display todos
     if !todos.is_empty() {
         for (i, x) in todos.iter().enumerate() {
             println!(
@@ -73,7 +73,7 @@ fn show_todos(todos: &Vec<Todo>) {
     }
 }
 
-/// remove todos from `Vec<Todo>` with a given ID
+/// Removes todo with the given ID from the list
 fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
@@ -93,7 +93,7 @@ fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-/// Update todos with a given ID
+/// Update todo with the given ID
 fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
@@ -113,10 +113,10 @@ fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     // Get Desc from user
     let desc = user_input()?.trim().to_string();
 
-    // Parsing ID String to usize if possible
+    // Parse ID string into a usize
     let id = id.trim().to_string().parse::<usize>()?;
 
-    // Find the ID and update with values given from user
+    // Find the ID and update it with the given values
     for (i, z) in todos.iter_mut().enumerate() {
         if i == id {
             z.title = title.to_string();
@@ -126,7 +126,7 @@ fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Just print the Main Menu
+/// Display the main menu
 fn main_menu() {
     println!(
         "\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n",
@@ -143,7 +143,7 @@ fn main_menu() {
     );
 }
 
-/// Show a Sub Menu
+/// Display the sub menu
 fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     print!(
         "\n\n{} {:<10} {} {:<10} {} {:<10}",
@@ -172,20 +172,19 @@ fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     }
 }
 
-/// Main function
 fn main() {
-    // Create an empty Vector to old the Todos
+    // Create a vector to hold the todos
     let mut todos: Vec<Todo> = vec![];
 
     // Main loop
     loop {
-        // Clear the Screen
+        // Clear the screen
         Command::new("clear").status().unwrap();
 
-        // Show Main Menu
+        // Show main menu
         main_menu();
 
-        // Let user choose an option
+        // Ask user to choose an option
         print!(
             "{}{}",
             "Choose an option ".white().bold(),
@@ -198,34 +197,38 @@ fn main() {
             Err(e) => panic!("Error get user input {e}"),
         };
 
+        // Open sub menu / show todos
         if user.contains('1') {
             show_todos(&todos);
 
-            // A Loop with submenu
+            // Display the sub menu in a loop
             while let Ok(e) = sub_menu(&mut todos) {
-                // if the value returned by sub menu is
-                // false then break the loop
+                // Break if `sub_menu()` returned false
                 if !e {
                     break;
                 }
                 show_todos(&todos);
             }
+        // add todo
         } else if user.contains('2') {
             if let Err(e) = add_todo(&mut todos) {
                 println!("Error add todo!!! {e}");
             }
+        // update todo
         } else if user.contains('3') {
             show_todos(&todos);
             if let Err(e) = update_todo(&mut todos) {
                 println!("Error update todo!!! {e}");
             }
+        // remove todo
         } else if user.contains('4') {
             show_todos(&todos);
             if let Err(e) = remove_todo(&mut todos) {
                 println!("Error remove todo!!! {e}");
             }
+        // exit
         } else if user.contains('5') {
             process::exit(0);
         }
-    } // end main Loop
+    } // End main loop
 }
