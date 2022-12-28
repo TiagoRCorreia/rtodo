@@ -14,9 +14,16 @@ use std::process::Command;
 use rtodo::todos::Todo;
 use rtodo::{add_todo, main_menu, remove_todo, show_todos, sub_menu, update_todo, user_input};
 
+mod persistence;
+
 fn main() {
     // Create a vector to hold the todos
     let mut todos: Vec<Todo> = vec![];
+
+    // Try read todos from file
+    if let Ok(vec) = persistence::read_from_file() {
+        todos.extend(vec);
+    }
 
     // Main loop
     loop {
@@ -70,6 +77,9 @@ fn main() {
             }
         // exit
         } else if user.contains('5') {
+            if let Err(e) = persistence::write_to_file(&todos) {
+                println!("Error save to file!!! {e}");
+            }
             std::process::exit(0);
         }
     } // End main loop
