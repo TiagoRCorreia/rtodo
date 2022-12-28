@@ -94,15 +94,13 @@ pub fn show_todos(todos: &Vec<Todo>) {
     );
 
     // Display todos
-    if !todos.is_empty() {
-        for (i, x) in todos.iter().enumerate() {
-            println!(
-                "{:^10} {:^40} {:^40}",
-                i.to_string().blue().bold(),
-                x.title.cyan().bold(),
-                x.description.yellow().bold()
-            );
-        }
+    for (i, x) in todos.iter().enumerate() {
+        println!(
+            "{:^10} {:^40} {:^40}",
+            i.to_string().blue().bold(),
+            x.title.cyan().bold(),
+            x.description.yellow().bold()
+        );
     }
 }
 
