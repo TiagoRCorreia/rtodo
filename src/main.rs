@@ -20,8 +20,6 @@ use todos::Todo;
 
 pub mod todos;
 
-
-
 /// Get user input and return the value as a String
 fn user_input() -> Result<String, Box<dyn std::error::Error>> {
     let mut buffer = String::new();
@@ -36,7 +34,6 @@ fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     let title = user_input()?.trim().to_string();
 
     print!("{}{}", "Description".white().bold(), "-> ".green().bold());
-
     let desc = user_input()?.trim().to_string();
 
     td.push(Todo::new(title, desc));
@@ -76,7 +73,6 @@ fn show_todos(todos: &Vec<Todo>) {
     }
 }
 
-
 /// remove todos from `Vec<Todo>` with a given ID
 fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!(
@@ -99,7 +95,6 @@ fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> 
 
 /// Update todos with a given ID 
 fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
-
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -160,7 +155,6 @@ fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
         "Remove Todo -> ".white().bold(),
     );
 
-
     let id = user_input()?.trim().to_string();
 
     if id.contains('1') {
@@ -204,7 +198,6 @@ fn main() {
             Err(e) => panic!("Error get user input {e}"),
         };
 
-
         if user.contains('1') {
             show_todos(&todos);
 
@@ -215,7 +208,6 @@ fn main() {
                 if !e {
                     break;
                 }
-                
                 show_todos(&todos);
             }
         } else if user.contains('2') {
@@ -235,5 +227,5 @@ fn main() {
         } else if user.contains('5') {
             process::exit(0);
         }
-    }// end main Loop
+    } // end main Loop
 }
