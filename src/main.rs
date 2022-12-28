@@ -1,17 +1,17 @@
-//! # rtodo 
+//! # rtodo
 //!
 //! I wrote this project while I'm learning Rust for practice.
-//! I decided to put this project online so that others, like me, 
+//! I decided to put this project online so that others, like me,
 //! who are learning Rust can take some ideas and help me improve this code too.
 //!
-//! Feel free to open a pull request to improve the code or to 
+//! Feel free to open a pull request to improve the code or to
 //! add new features and help me learn Rust.
 
 // Read input and flushing
 use std::io::{self, Write};
 
 // For Command and Exit
-use std::process::{self,Command};
+use std::process::{self, Command};
 
 // For colored output
 use colored::Colorize;
@@ -52,7 +52,7 @@ fn show_todos(todos: &Vec<Todo>) {
         "Description".blue().bold()
     );
 
-    // Format the output with hyphens 
+    // Format the output with hyphens
     println!(
         "{:-^10} {:-^40} {:-^40}",
         "".blue().bold(),
@@ -93,7 +93,7 @@ fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-/// Update todos with a given ID 
+/// Update todos with a given ID
 fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
@@ -143,7 +143,7 @@ fn main_menu() {
     );
 }
 
-/// Show a Sub Menu 
+/// Show a Sub Menu
 fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     print!(
         "\n\n{} {:<10} {} {:<10} {} {:<10}",
