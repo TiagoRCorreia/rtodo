@@ -86,6 +86,16 @@ If you have any feedback, please reach out to me at tiagorcoreia87@gmail.com
 
 
 
+## Contributing
+
+Contributions are always welcome!
+
+See [contributing](CONTRIBUTING.md) for ways to get started.
+
+Please adhere to this project's [code of conduct](CODE_OF_CONDUCT.md).
+
+
+
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
