@@ -57,7 +57,6 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
         remove_todo(todos)?;
         Ok(true)
     } else {
-        println!("Option Invalid!");
         Ok(false)
     }
 }
