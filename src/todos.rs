@@ -4,11 +4,12 @@ use serde_derive::{Deserialize, Serialize};
 pub struct Todo {
     pub title: String,
     pub description: String,
+    pub done: bool,
 }
 
 impl Todo {
     // Constructor for initializing the Todo
-    pub fn new(title: String, description: String) -> Self {
-        Self { title, description }
+    pub fn new(title: String, description: String, done: bool) -> Self {
+        Self {title, description, done, }
     }
 }

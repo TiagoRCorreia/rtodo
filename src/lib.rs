@@ -5,9 +5,9 @@ use std::process::Command;
 
 use todos::Todo;
 
-pub mod todos;
-pub mod persistence;
 pub mod commands;
+pub mod persistence;
+pub mod todos;
 
 /// Get user input and return the value as a String
 pub fn user_input() -> Result<String, Box<dyn std::error::Error>> {
@@ -37,13 +37,17 @@ pub fn main_menu() {
 /// Display the sub menu
 pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     print!(
-        "\n\n{} {:<10} {} {:<10} {} {:<10}",
+        "\n\n{} {:<10} {} {:<10} {} {:<10} {} {:<10} {} {:<10}",
         "[1]".blue().bold(),
         "Main Menu".white().bold(),
         "[2]".blue().bold(),
         "Add Todo".white().bold(),
         "[3]".blue().bold(),
         "Remove Todo -> ".white().bold(),
+        "[4]".blue().bold(),
+        "Mark done -> ".white().bold(),
+        "[5]".blue().bold(),
+        "Mark undone -> ".white().bold(),
     );
 
     let id = user_input()?.trim().to_string();
@@ -56,6 +60,12 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
         Ok(true)
     } else if id.contains('3') {
         remove_todo(todos)?;
+        Ok(true)
+    } else if id.contains('4') {
+        set_done(todos)?;
+        Ok(true)
+    } else if id.contains('5') {
+        set_undone(todos)?;
         Ok(true)
     } else {
         Ok(false)
@@ -70,12 +80,12 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!("{}{}", "Description".white().bold(), "-> ".green().bold());
     let desc = user_input()?.trim().to_string();
 
-    td.push(Todo::new(title, desc));
+    td.push(Todo::new(title, desc, false));
     Ok(())
 }
 
 /// Show todos in a formatted table
-pub fn show_todos(todos: &Vec<Todo>) {
+pub fn show_todos(todos: &[Todo]) {
     // Clear the screen
     Command::new("clear").status().unwrap();
 
@@ -96,12 +106,22 @@ pub fn show_todos(todos: &Vec<Todo>) {
 
     // Display todos
     for (i, x) in todos.iter().enumerate() {
-        println!(
-            "{:^10} {:^40} {:^40}",
-            i.to_string().blue().bold(),
-            x.title.cyan().bold(),
-            x.description.yellow().bold()
-        );
+        // Check if todos is done
+        if x.done.eq(&true) {
+            println!(
+                "{:^10} {:^40} {:^40}",
+                i.to_string().strikethrough().red().bold(),
+                x.title.strikethrough().red().bold(),
+                x.description.strikethrough().red().bold()
+            );
+        } else {
+            println!(
+                "{:^10} {:^40} {:^40}",
+                i.to_string().blue().bold(),
+                x.title.cyan().bold(),
+                x.description.yellow().bold()
+            );
+        }
     }
 }
 
@@ -121,7 +141,7 @@ pub fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Erro
     if rm < todos.len() && !todos.is_empty() {
         todos.remove(rm);
     };
-    
+
     Ok(())
 }
 
@@ -159,10 +179,42 @@ pub fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-pub fn save_and_exit(todos:&mut Vec<Todo>){
-    if let Err(e) = persistence::write_to_file(&todos) {
+/// Exit and save
+pub fn save_and_exit(todos: &mut Vec<Todo>) {
+    if let Err(e) = persistence::write_to_file(todos) {
         println!("Error save to file!!! {e}");
     }
     std::process::exit(0);
+}
 
+// Mark todo as done
+pub fn set_done(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+    print!(
+        "\n{} {}{}",
+        "ID".red().bold(),
+        "to mark as done -> ".white().bold(),
+        "-> ".green().bold()
+    );
+
+    // Get ID from user and parse it into usize
+    let id = user_input()?.trim().to_string().parse::<usize>()?;
+    td[id].done = true;
+
+    Ok(())
+}
+/// Mark todo as undone
+pub fn set_undone(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+    print!(
+        "\n{} {}{}",
+        "ID".red().bold(),
+        "to mark as undone -> ".white().bold(),
+        "-> ".green().bold()
+    );
+
+    // Get ID from user and parse it into usize
+    let id = user_input()?.trim().to_string().parse::<usize>()?;
+    // Set todo to false
+    td[id].done = false;
+
+    Ok(())
 }
