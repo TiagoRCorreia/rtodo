@@ -1,6 +1,6 @@
 use directories::BaseDirs;
 
-use rtodo::todos::Todo;
+use crate::todos::Todo;
 
 // Read todos from file
 pub fn read_from_file() -> Result<Vec<Todo>, Box<dyn std::error::Error>> {

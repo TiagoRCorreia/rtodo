@@ -13,8 +13,7 @@ use std::process::Command;
 
 use rtodo::todos::Todo;
 use rtodo::{add_todo, main_menu, remove_todo, show_todos, sub_menu, update_todo, user_input};
-
-mod persistence;
+use rtodo::persistence;
 
 fn main() {
     // Create a vector to hold the todos
