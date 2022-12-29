@@ -36,6 +36,11 @@ Install rtodo with cargo
 cargo install rtodo
 ```
 
+Install rtodo on ArchLinux
+
+```bash
+yay -S rtodo-bin
+```
 
     
 ## Run Locally
