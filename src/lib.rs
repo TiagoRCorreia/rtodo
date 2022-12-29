@@ -6,6 +6,7 @@ use std::process::Command;
 use todos::Todo;
 
 pub mod todos;
+pub mod persistence;
 
 /// Get user input and return the value as a String
 pub fn user_input() -> Result<String, Box<dyn std::error::Error>> {
