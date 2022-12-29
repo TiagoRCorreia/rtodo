@@ -7,6 +7,7 @@ use todos::Todo;
 
 pub mod todos;
 pub mod persistence;
+pub mod commands;
 
 /// Get user input and return the value as a String
 pub fn user_input() -> Result<String, Box<dyn std::error::Error>> {
@@ -156,4 +157,12 @@ pub fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>>
     }
 
     Ok(())
+}
+
+pub fn save_and_exit(todos:&mut Vec<Todo>){
+    if let Err(e) = persistence::write_to_file(&todos) {
+        println!("Error save to file!!! {e}");
+    }
+    std::process::exit(0);
+
 }

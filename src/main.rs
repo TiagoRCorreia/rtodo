@@ -8,13 +8,16 @@
 //! add new features and help me learn Rust.
 
 use colored::Colorize;
+use rtodo::commands::execute_commands;
 
 use std::process::Command;
 use std::sync::{atomic::{AtomicBool, Ordering},Arc};
 
-use rtodo::todos::Todo;
-use rtodo::{add_todo, main_menu, remove_todo, show_todos, sub_menu, update_todo, user_input};
 use rtodo::persistence;
+use rtodo::todos::Todo;
+use rtodo::{
+    add_todo, main_menu, remove_todo, save_and_exit, show_todos, sub_menu, update_todo, user_input,
+};
 
 fn main() {
     // Create an atomic variable wrapped in an Arc pointer
@@ -38,8 +41,14 @@ fn main() {
         todos.extend(vec);
     }
 
+    // Get command and execute
+    if let Err(e) = execute_commands(&mut todos) {
+        println!("Error execute the command!!! {e}");
+    }
+
     // Main loop
     loop {
+        // Handler loop
         while running.load(Ordering::SeqCst) {
             // Clear the screen
             Command::new("clear").status().unwrap();
@@ -110,10 +119,7 @@ fn main() {
             // Check if the user wants to exit.
             if confirm.trim().eq_ignore_ascii_case("y") {
                 // Save and exit
-                if let Err(e) = persistence::write_to_file(&todos) {
-                    println!("Error save to file!!! {e}");
-                }
-                std::process::exit(0);
+                save_and_exit(&mut todos);
             } else {
                 // Write true into the handler
                 last_catch.store(true, Ordering::SeqCst);
