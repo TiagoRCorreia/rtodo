@@ -10,6 +10,7 @@
 use colored::Colorize;
 
 use std::process::Command;
+use std::sync::{atomic::{AtomicBool, Ordering},Arc};
 
 use rtodo::todos::Todo;
 use rtodo::{add_todo, main_menu, remove_todo, show_todos, sub_menu, update_todo, user_input};
@@ -17,70 +18,107 @@ use rtodo::{add_todo, main_menu, remove_todo, show_todos, sub_menu, update_todo,
 mod persistence;
 
 fn main() {
+    // Create an atomic variable wrapped in an Arc pointer
+    let running = Arc::new(AtomicBool::new(true));
+
+    // Clone pointer for later use
+    let first_catch = running.clone();
+    let last_catch = running.clone();
+
+    // Create a handler to catch CTRL+C
+    ctrlc::set_handler(move || {
+        first_catch.store(false, Ordering::SeqCst);
+    })
+    .expect("Error creating a handler!!!");
+
     // Create a vector to hold the todos
     let mut todos: Vec<Todo> = vec![];
 
-    // Try read todos from file
+    // Try reading todos from the file
     if let Ok(vec) = persistence::read_from_file() {
         todos.extend(vec);
     }
 
     // Main loop
     loop {
-        // Clear the screen
-        Command::new("clear").status().unwrap();
+        while running.load(Ordering::SeqCst) {
+            // Clear the screen
+            Command::new("clear").status().unwrap();
 
-        // Show main menu
-        main_menu();
+            // Show main menu
+            main_menu();
 
-        // Ask user to choose an option
+            // Ask user to choose an option
+            print!(
+                "{}{}",
+                "Choose an option ".white().bold(),
+                "-> ".green().bold()
+            );
+
+            // Check if input from user is valid
+            let user = match user_input() {
+                Ok(u) => u.trim().to_string(),
+                Err(e) => panic!("Error get user input {e}"),
+            };
+
+            // Open sub menu / show todos
+            if user.contains('1') {
+                show_todos(&todos);
+
+                // Display the sub menu in a loop
+                while let Ok(e) = sub_menu(&mut todos) {
+                    // Break if `sub_menu()` returned false
+                    if !e {
+                        break;
+                    }
+                    show_todos(&todos);
+                }
+            // add todo
+            } else if user.contains('2') {
+                if let Err(e) = add_todo(&mut todos) {
+                    println!("Error add todo!!! {e}");
+                }
+            // update todo
+            } else if user.contains('3') {
+                show_todos(&todos);
+                if let Err(e) = update_todo(&mut todos) {
+                    println!("Error update todo!!! {e}");
+                }
+            // remove todo
+            } else if user.contains('4') {
+                show_todos(&todos);
+                if let Err(e) = remove_todo(&mut todos) {
+                    println!("Error remove todo!!! {e}");
+                }
+            // exit
+            } else if user.contains('5') {
+                if let Err(e) = persistence::write_to_file(&todos) {
+                    println!("Error save to file!!! {e}");
+                }
+                std::process::exit(0);
+            }
+        } // End while loop
+
         print!(
-            "{}{}",
-            "Choose an option ".white().bold(),
-            "-> ".green().bold()
+            "{}{}{}",
+            "Do you want exit?".red().bold(),
+            " [Y/N]".yellow().bold(),
+            " -> ".green().bold()
         );
 
-        // Check if input from user is valid
-        let user = match user_input() {
-            Ok(u) => u.trim().to_string(),
-            Err(e) => panic!("Error get user input {e}"),
-        };
-
-        // Open sub menu / show todos
-        if user.contains('1') {
-            show_todos(&todos);
-
-            // Display the sub menu in a loop
-            while let Ok(e) = sub_menu(&mut todos) {
-                // Break if `sub_menu()` returned false
-                if !e {
-                    break;
+        // Get confirmation from the user
+        if let Ok(confirm) = user_input() {
+            // Check if the user wants to exit.
+            if confirm.trim().eq_ignore_ascii_case("y") {
+                // Save and exit
+                if let Err(e) = persistence::write_to_file(&todos) {
+                    println!("Error save to file!!! {e}");
                 }
-                show_todos(&todos);
+                std::process::exit(0);
+            } else {
+                // Write true into the handler
+                last_catch.store(true, Ordering::SeqCst);
             }
-        // add todo
-        } else if user.contains('2') {
-            if let Err(e) = add_todo(&mut todos) {
-                println!("Error add todo!!! {e}");
-            }
-        // update todo
-        } else if user.contains('3') {
-            show_todos(&todos);
-            if let Err(e) = update_todo(&mut todos) {
-                println!("Error update todo!!! {e}");
-            }
-        // remove todo
-        } else if user.contains('4') {
-            show_todos(&todos);
-            if let Err(e) = remove_todo(&mut todos) {
-                println!("Error remove todo!!! {e}");
-            }
-        // exit
-        } else if user.contains('5') {
-            if let Err(e) = persistence::write_to_file(&todos) {
-                println!("Error save to file!!! {e}");
-            }
-            std::process::exit(0);
         }
     } // End main loop
 }

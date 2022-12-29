@@ -2,11 +2,11 @@ use directories::BaseDirs;
 
 use rtodo::todos::Todo;
 
-// Read todos from file
+// Read todos from a file
 pub fn read_from_file() -> Result<Vec<Todo>, Box<dyn std::error::Error>> {
     // Get todos file
     let path = BaseDirs::new().unwrap().config_dir().join("rtodo/db.json");
-    // Read todos from file as string
+    // Read todos from the file as a string
     let td_str = std::fs::read_to_string(path)?;
 
     // Create a vector of todos
@@ -16,9 +16,9 @@ pub fn read_from_file() -> Result<Vec<Todo>, Box<dyn std::error::Error>> {
     Ok(todos)
 }
 
-// Write todos into file
+// Write todos into a file
 pub fn write_to_file(todos: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
-    // Get .config directory on Linux system
+    // Get the .config directory on the Linux system
     let path = BaseDirs::new().unwrap().config_dir().join("rtodo");
 
     // Create rtodo directory
@@ -26,7 +26,7 @@ pub fn write_to_file(todos: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>
         std::fs::create_dir(&path)?;
     }
 
-    // Write todos into file
+    // Write todos into the file
     std::fs::write(path.join("db.json"), serde_json::to_string(&todos)?)?;
     Ok(())
 }
