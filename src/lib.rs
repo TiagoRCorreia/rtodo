@@ -26,7 +26,7 @@ pub fn user_input() -> Result<String, Box<dyn std::error::Error>> {
 /// Display the main menu
 pub fn main_menu() {
     println!(
-        "\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n",
+        "\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n{:>5} {}\n",
         "[1]".blue(),
         "Show Todos".yellow(),
         "[2]".blue(),
@@ -36,6 +36,10 @@ pub fn main_menu() {
         "[4]".blue(),
         "Remove Todos".yellow(),
         "[5]".blue(),
+        "Import Todos".yellow(),
+        "[6]".blue(),
+        "Export Todos".yellow(),
+        "[7]".blue(),
         "Exit".yellow(),
     );
 }

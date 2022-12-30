@@ -11,9 +11,9 @@ use colored::Colorize;
 use rtodo::commands::execute_commands;
 
 use std::process::Command;
-use std::sync::{atomic::{AtomicBool, Ordering},Arc};
+use std::sync::{atomic::{AtomicBool, Ordering},Arc,};
 
-use rtodo::persistence;
+use rtodo::persistence::{self, export_menu, import_menu};
 use rtodo::todos::Todo;
 use rtodo::{
     add_todo, main_menu, remove_todo, save_and_exit, show_todos, sub_menu, update_todo, user_input,
@@ -98,8 +98,18 @@ fn main() {
                 if let Err(e) = remove_todo(&mut todos) {
                     println!("Error remove todo!!! {e}");
                 }
-            // exit
+               // Import
             } else if user.contains('5') {
+                if let Err(e) = import_menu(&mut todos) {
+                    println!("Error import file!!! {}", e);
+                }
+               // Export
+            } else if user.contains('6') {
+                if let Err(e) = export_menu(&todos) {
+                    println!("Error export into the file!!! {}", e);
+                }
+            // exit
+            } else if user.contains('7') {
                 if let Err(e) = persistence::write_to_file(&todos) {
                     println!("Error save to file!!! {e}");
                 }
@@ -107,6 +117,7 @@ fn main() {
             }
         } // End while loop
 
+        // Display message
         print!(
             "{}{}{}",
             "Do you want exit?".red().bold(),
