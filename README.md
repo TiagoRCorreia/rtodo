@@ -18,13 +18,16 @@ Feel free to open a pull request to improve the code, add new features, and help
 - Add todos
 - Remove todos
 - Update todos
+- Set Priority
+- Status Done/Undone
+- Sort by priority and status
 
 ## Screenshots
 
-<p align="center"><img src="/img/menu.jpg?raw=true"/></p>
-<p align="center"><img src="/img/sub_menu.jpg?raw=true"/></p>
-<p align="center"><img src="/img/add_todo.jpg?raw=true"/></p>
-<p align="center"><img src="/img/remove_todo.jpg?raw=true"/></p>
+<p align="center"><img src="/img/img1.png?raw=true"/></p>
+<p align="center"><img src="/img/img2.png?raw=true"/></p>
+<p align="center"><img src="/img/img3.png?raw=true"/></p>
+<p align="center"><img src="/img/img4.png?raw=true"/></p>
 
 
 ## Installation
