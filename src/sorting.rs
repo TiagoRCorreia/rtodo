@@ -29,10 +29,10 @@ pub fn sorting_control(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>
         print!(
             "\n\n{}{} {}{} {}",
             "[1]".blue().bold(),
-            "Done".red().bold(),
+            "Done".green().bold(),
             "[2]".blue().bold(),
-            "Undone".green().bold(),
-            "-> ".white().bold(),
+            "Undone".red().bold(),
+            "-> ".green().bold(),
         );
 
         // Get user input
@@ -57,7 +57,7 @@ pub fn sorting_control(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>
             "MEDIUM".yellow().bold(),
             "[3]".blue().bold(),
             "HIGH".red().bold(),
-            "-> ".white().bold(),
+            "-> ".green().bold(),
         );
 
         let sort_priority = user_input()?.trim().to_string();

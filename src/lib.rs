@@ -94,7 +94,7 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!("{}{}", "Title ".white().bold(), "-> ".green().bold());
     let title = user_input()?.trim().to_string();
 
-    print!("{}{}", "Description".white().bold(), "-> ".green().bold());
+    print!("{}{}", "Description ".white().bold(), "-> ".green().bold());
     let desc = user_input()?.trim().to_string();
 
     td.push(Todo::new(
@@ -233,7 +233,7 @@ pub fn set_done(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
-        "to mark as done -> ".white().bold(),
+        "to mark it as done ".white().bold(),
         "-> ".green().bold()
     );
 
@@ -248,7 +248,7 @@ pub fn set_undone(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
-        "to mark as undone -> ".white().bold(),
+        "to mark it as undone ".white().bold(),
         "-> ".green().bold()
     );
 
@@ -274,7 +274,7 @@ pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
-        "to set the Priority -> ".white().bold(),
+        "to set the Priority ".white().bold(),
         "-> ".green().bold()
     );
     // Get id from the user
@@ -282,13 +282,14 @@ pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
 
     // Display menu priority
     print!(
-        "\n{}{} {}{} {}{}",
+        "\n{}{} {}{} {}{} {}",
         "[1]".blue().bold(),
-        " Low".green().bold(),
+        "Low".green().bold(),
         "[2]".blue().bold(),
-        " MEDIUM ".yellow().bold(),
+        "MEDIUM ".yellow().bold(),
         "[3]".blue().bold(),
-        " HIGH -> ".red().bold()
+        "HIGH ".red().bold(),
+        "-> ".green().bold(),
     );
 
     // Get priority from the user
