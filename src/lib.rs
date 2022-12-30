@@ -1,8 +1,9 @@
-use colored::Colorize;
+use colored::{ColoredString, Colorize};
 
 use std::io::{self, Write};
 use std::process::Command;
 
+use todos::Priority;
 use todos::Todo;
 
 pub mod commands;
@@ -37,17 +38,19 @@ pub fn main_menu() {
 /// Display the sub menu
 pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     print!(
-        "\n\n{} {:<10} {} {:<10} {} {:<10} {} {:<10} {} {:<10}",
+        "\n\n{}{:^10} {}{:^10} {}{:^10} {}{:^10} {}{:^10} {}{:^10}",
         "[1]".blue().bold(),
         "Main Menu".white().bold(),
         "[2]".blue().bold(),
         "Add Todo".white().bold(),
         "[3]".blue().bold(),
-        "Remove Todo -> ".white().bold(),
+        "Remove Todo".white().bold(),
         "[4]".blue().bold(),
-        "Mark done -> ".white().bold(),
+        "Mark done".white().bold(),
         "[5]".blue().bold(),
-        "Mark undone -> ".white().bold(),
+        "Mark undone".white().bold(),
+        "[6]".blue().bold(),
+        "Set Priority -> ".white().bold(),
     );
 
     let id = user_input()?.trim().to_string();
@@ -67,6 +70,9 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
     } else if id.contains('5') {
         set_undone(todos)?;
         Ok(true)
+    } else if id.contains('6') {
+        set_priority(todos)?;
+        Ok(true)
     } else {
         Ok(false)
     }
@@ -80,7 +86,7 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!("{}{}", "Description".white().bold(), "-> ".green().bold());
     let desc = user_input()?.trim().to_string();
 
-    td.push(Todo::new(title, desc, false));
+    td.push(Todo::new(title, desc, false, Priority::LOW));
     Ok(())
 }
 
@@ -90,18 +96,20 @@ pub fn show_todos(todos: &[Todo]) {
     Command::new("clear").status().unwrap();
 
     println!(
-        "{:^10} {:^40} {:^40}",
+        "{:^10} {:^40} {:^40} {:^10}",
         "ID".blue().bold(),
         "Title".blue().bold(),
-        "Description".blue().bold()
+        "Description".blue().bold(),
+        "Priority".blue().bold(),
     );
 
     // Format the output with hyphens
     println!(
-        "{:-^10} {:-^40} {:-^40}",
+        "{:-^10} {:-^40} {:-^40} {:-^10}",
         "".blue().bold(),
         "".blue().bold(),
-        "".blue().bold()
+        "".blue().bold(),
+        "".blue().bold(),
     );
 
     // Display todos
@@ -109,17 +117,19 @@ pub fn show_todos(todos: &[Todo]) {
         // Check if todos is done
         if x.done.eq(&true) {
             println!(
-                "{:^10} {:^40} {:^40}",
+                "{:^10} {:^40} {:^40} {:^10}",
                 i.to_string().strikethrough().red().bold(),
                 x.title.strikethrough().red().bold(),
-                x.description.strikethrough().red().bold()
+                x.description.strikethrough().red().bold(),
+                (get_priority(&x.time).strikethrough().red()),
             );
         } else {
             println!(
-                "{:^10} {:^40} {:^40}",
+                "{:^10} {:^40} {:^40} {:^10}",
                 i.to_string().blue().bold(),
                 x.title.cyan().bold(),
-                x.description.yellow().bold()
+                x.description.yellow().bold(),
+                (get_priority(&x.time)),
             );
         }
     }
@@ -187,7 +197,7 @@ pub fn save_and_exit(todos: &mut Vec<Todo>) {
     std::process::exit(0);
 }
 
-// Mark todo as done
+/// Mark todo as done
 pub fn set_done(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     print!(
         "\n{} {}{}",
@@ -216,5 +226,49 @@ pub fn set_undone(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     // Set todo to false
     td[id].done = false;
 
+    Ok(())
+}
+
+/// Get priority of the todo as ColoredString
+pub fn get_priority(pr: &Priority) -> ColoredString {
+    match pr {
+        Priority::LOW => "LOW".green().bold(),
+        Priority::MEDIUM => "MEDIUM".yellow().bold(),
+        Priority::HIGH => "HIGH".red().bold(),
+    }
+}
+
+/// Set priority of the todo
+pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+    print!(
+        "\n{} {}{}",
+        "ID".red().bold(),
+        "to set the Priority -> ".white().bold(),
+        "-> ".green().bold()
+    );
+    // Get id from the user
+    let id = user_input()?.trim().to_string().parse::<usize>()?;
+
+    // Display menu priority
+    print!(
+        "\n{}{} {}{} {}{}",
+        "[1]".blue().bold(),
+        " Low".green().bold(),
+        "[2]".blue().bold(),
+        " MEDIUM ".yellow().bold(),
+        "[3]".blue().bold(),
+        " HIGH -> ".red().bold()
+    );
+
+    // Get priority from the user
+    let pr = user_input()?.trim().to_string();
+
+    if pr.contains('1') {
+        td[id].time = Priority::LOW;
+    } else if pr.contains('2') {
+        td[id].time = Priority::MEDIUM;
+    } else if pr.contains('3') {
+        td[id].time = Priority::HIGH;
+    }
     Ok(())
 }
