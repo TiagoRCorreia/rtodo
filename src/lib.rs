@@ -8,8 +8,11 @@ use chrono::Utc;
 use todos::Priority;
 use todos::Todo;
 
+use crate::sorting::sorting_control;
+
 pub mod commands;
 pub mod persistence;
+pub mod sorting;
 pub mod todos;
 
 /// Get user input and return the value as a String
@@ -40,19 +43,22 @@ pub fn main_menu() {
 /// Display the sub menu
 pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
     print!(
-        "\n\n{}{:^10} {}{:^10} {}{:^10} {}{:^10} {}{:^10} {}{:^10}",
+        "\n\n{}{:^4} {}{:^3} {}{:^5} {}{:^3} {}{:^3} {}{:^5} {}{:^5} {}",
         "[1]".blue().bold(),
-        "Main Menu".white().bold(),
+        "Menu".white().bold(),
         "[2]".blue().bold(),
-        "Add Todo".white().bold(),
+        "New".white().bold(),
         "[3]".blue().bold(),
-        "Remove Todo".white().bold(),
+        "Remove".white().bold(),
         "[4]".blue().bold(),
-        "Mark done".white().bold(),
+        "Done".white().bold(),
         "[5]".blue().bold(),
-        "Mark undone".white().bold(),
+        "Undone".white().bold(),
         "[6]".blue().bold(),
-        "Set Priority -> ".white().bold(),
+        "Priority".white().bold(),
+        "[7]".blue().bold(),
+        "Sort".white().bold(),
+        "-> ".green().bold(),
     );
 
     let id = user_input()?.trim().to_string();
@@ -74,6 +80,9 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
         Ok(true)
     } else if id.contains('6') {
         set_priority(todos)?;
+        Ok(true)
+    } else if id.contains('7') {
+        sorting_control(todos)?;
         Ok(true)
     } else {
         Ok(false)
@@ -99,7 +108,7 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Show todos in a formatted table
-pub fn show_todos(todos: &[Todo]) {
+pub fn show_todos(todos: &mut [Todo]) {
     // Clear the screen
     Command::new("clear").status().unwrap();
 
@@ -133,7 +142,7 @@ pub fn show_todos(todos: &[Todo]) {
                 x.description.strikethrough().red().bold(),
                 (get_priority(&x.time).strikethrough().red()),
                 x.date
-                    .split("+")
+                    .split('+')
                     .next()
                     .unwrap_or_default()
                     .strikethrough()
@@ -147,7 +156,7 @@ pub fn show_todos(todos: &[Todo]) {
                 x.description.yellow().bold(),
                 (get_priority(&x.time)),
                 x.date
-                    .split("+")
+                    .split('+')
                     .next()
                     .unwrap_or_default()
                     .magenta()
