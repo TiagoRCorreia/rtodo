@@ -71,7 +71,7 @@ fn main() {
 
             // Open sub menu / show todos
             if user.contains('1') {
-                show_todos(&todos);
+                show_todos(&mut todos);
 
                 // Display the sub menu in a loop
                 while let Ok(e) = sub_menu(&mut todos) {
@@ -79,7 +79,7 @@ fn main() {
                     if !e {
                         break;
                     }
-                    show_todos(&todos);
+                    show_todos(&mut todos);
                 }
             // add todo
             } else if user.contains('2') {
@@ -88,13 +88,13 @@ fn main() {
                 }
             // update todo
             } else if user.contains('3') {
-                show_todos(&todos);
+                show_todos(&mut todos);
                 if let Err(e) = update_todo(&mut todos) {
                     println!("Error update todo!!! {e}");
                 }
             // remove todo
             } else if user.contains('4') {
-                show_todos(&todos);
+                show_todos(&mut todos);
                 if let Err(e) = remove_todo(&mut todos) {
                     println!("Error remove todo!!! {e}");
                 }
