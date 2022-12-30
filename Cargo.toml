@@ -18,3 +18,4 @@ serde_derive = "1.0"
 directories = "4.0"
 ctrlc = "3.2"
 clap = { version = "4.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }

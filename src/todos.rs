@@ -1,4 +1,4 @@
-use core::fmt;
+use std::fmt;
 
 use serde_derive::{Deserialize, Serialize};
 
@@ -28,11 +28,24 @@ pub struct Todo {
     pub description: String,
     pub done: bool,
     pub time: Priority,
+    pub date: String,
 }
 
 impl Todo {
     // Constructor for initializing the Todo
-    pub fn new(title: String, description: String, done: bool, time: Priority) -> Self {
-        Self { title, description, done, time, }
+    pub fn new(
+        title: String,
+        description: String,
+        done: bool,
+        time: Priority,
+        date: String,
+    ) -> Self {
+        Self {
+            title,
+            description,
+            done,
+            time,
+            date,
+        }
     }
 }
