@@ -3,6 +3,8 @@ use colored::{ColoredString, Colorize};
 use std::io::{self, Write};
 use std::process::Command;
 
+use chrono::Utc;
+
 use todos::Priority;
 use todos::Todo;
 
@@ -86,7 +88,13 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
     print!("{}{}", "Description".white().bold(), "-> ".green().bold());
     let desc = user_input()?.trim().to_string();
 
-    td.push(Todo::new(title, desc, false, Priority::LOW));
+    td.push(Todo::new(
+        title,
+        desc,
+        false,
+        Priority::LOW,
+        Utc::now().to_rfc2822(),
+    ));
     Ok(())
 }
 
@@ -96,16 +104,18 @@ pub fn show_todos(todos: &[Todo]) {
     Command::new("clear").status().unwrap();
 
     println!(
-        "{:^10} {:^40} {:^40} {:^10}",
+        "{:^10} {:^40} {:^40} {:^10} {:^32}",
         "ID".blue().bold(),
         "Title".blue().bold(),
         "Description".blue().bold(),
         "Priority".blue().bold(),
+        "Creation Date".blue().bold(),
     );
 
     // Format the output with hyphens
     println!(
-        "{:-^10} {:-^40} {:-^40} {:-^10}",
+        "{:-^10} {:-^40} {:-^40} {:-^10} {:-^32}",
+        "".blue().bold(),
         "".blue().bold(),
         "".blue().bold(),
         "".blue().bold(),
@@ -117,19 +127,31 @@ pub fn show_todos(todos: &[Todo]) {
         // Check if todos is done
         if x.done.eq(&true) {
             println!(
-                "{:^10} {:^40} {:^40} {:^10}",
+                "{:^10} {:^40} {:^40} {:^10} {:^32}",
                 i.to_string().strikethrough().red().bold(),
                 x.title.strikethrough().red().bold(),
                 x.description.strikethrough().red().bold(),
                 (get_priority(&x.time).strikethrough().red()),
+                x.date
+                    .split("+")
+                    .next()
+                    .unwrap_or_default()
+                    .strikethrough()
+                    .red(),
             );
         } else {
             println!(
-                "{:^10} {:^40} {:^40} {:^10}",
+                "{:^10} {:^40} {:^40} {:^10} {:^32}",
                 i.to_string().blue().bold(),
                 x.title.cyan().bold(),
                 x.description.yellow().bold(),
                 (get_priority(&x.time)),
+                x.date
+                    .split("+")
+                    .next()
+                    .unwrap_or_default()
+                    .magenta()
+                    .bold()
             );
         }
     }
