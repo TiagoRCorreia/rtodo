@@ -1,14 +1,16 @@
 use std::cmp::Ordering;
 
+use anyhow::Result;
 use colored::Colorize;
 
 use crate::{
+    errors::TErrors,
     todos::{Priority, Todo},
     user_input,
 };
 
 /// Menu sort
-pub fn sorting_control(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn sorting_menu(td: &mut [Todo]) -> Result<()> {
     // Display menu sort
     print!("\n{}", "Sort by:".magenta());
     print!(
@@ -20,7 +22,10 @@ pub fn sorting_control(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>
         " -> ".green().bold(),
     );
 
-    let sort = user_input()?.trim().to_string();
+    let sort = user_input()
+        .map_err(|e| TErrors::SortMenu(e.to_string()))?
+        .trim()
+        .to_string();
 
     // Sort by status
     if sort.contains('1') {

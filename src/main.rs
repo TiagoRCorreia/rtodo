@@ -11,7 +11,10 @@ use colored::Colorize;
 use rtodo::commands::execute_commands;
 
 use std::process::Command;
-use std::sync::{atomic::{AtomicBool, Ordering},Arc,};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 use rtodo::persistence::{self, export_menu, import_menu};
 use rtodo::todos::Todo;
@@ -43,7 +46,7 @@ fn main() {
 
     // Get command and execute
     if let Err(e) = execute_commands(&mut todos) {
-        println!("Error execute the command!!! {e}");
+        eprintln!("{e}");
     }
 
     // Main loop
@@ -66,7 +69,7 @@ fn main() {
             // Check if input from user is valid
             let user = match user_input() {
                 Ok(u) => u.trim().to_string(),
-                Err(e) => panic!("Error get user input {e}"),
+                Err(e) => panic!("{e}"),
             };
 
             // Open sub menu / show todos
@@ -84,34 +87,34 @@ fn main() {
             // add todo
             } else if user.contains('2') {
                 if let Err(e) = add_todo(&mut todos) {
-                    println!("Error add todo!!! {e}");
+                    eprintln!("{e}");
                 }
             // update todo
             } else if user.contains('3') {
                 show_todos(&mut todos);
                 if let Err(e) = update_todo(&mut todos) {
-                    println!("Error update todo!!! {e}");
+                    eprintln!("{e}");
                 }
             // remove todo
             } else if user.contains('4') {
                 show_todos(&mut todos);
                 if let Err(e) = remove_todo(&mut todos) {
-                    println!("Error remove todo!!! {e}");
+                    eprintln!("{e}");
                 }
-               // Import
+                // Import
             } else if user.contains('5') {
                 if let Err(e) = import_menu(&mut todos) {
-                    println!("Error import file!!! {}", e);
+                    eprintln!("{e}");
                 }
-               // Export
+                // Export
             } else if user.contains('6') {
                 if let Err(e) = export_menu(&todos) {
-                    println!("Error export into the file!!! {}", e);
+                    eprintln!("{e}");
                 }
             // exit
             } else if user.contains('7') {
                 if let Err(e) = persistence::write_to_file(&todos) {
-                    println!("Error save to file!!! {e}");
+                    eprintln!("{e}");
                 }
                 std::process::exit(0);
             }

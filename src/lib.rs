@@ -3,23 +3,28 @@ use colored::{ColoredString, Colorize};
 use std::io::{self, Write};
 use std::process::Command;
 
+use anyhow::Result;
 use chrono::Utc;
 
+use errors::TErrors;
 use todos::Priority;
 use todos::Todo;
 
-use crate::sorting::sorting_control;
+use crate::sorting::sorting_menu;
 
 pub mod commands;
+pub mod errors;
 pub mod persistence;
 pub mod sorting;
 pub mod todos;
 
 /// Get user input and return the value as a String
-pub fn user_input() -> Result<String, Box<dyn std::error::Error>> {
+pub fn user_input() -> Result<String> {
     let mut buffer = String::new();
-    io::stdout().flush()?;
-    io::stdin().read_line(&mut buffer)?;
+    io::stdout().flush().map_err(TErrors::ReadUserInput)?;
+    io::stdin()
+        .read_line(&mut buffer)
+        .map_err(TErrors::ReadUserInput)?;
     Ok(buffer)
 }
 
@@ -45,7 +50,7 @@ pub fn main_menu() {
 }
 
 /// Display the sub menu
-pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error>> {
+pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool> {
     print!(
         "\n\n{}{:^4} {}{:^3} {}{:^5} {}{:^3} {}{:^3} {}{:^5} {}{:^5} {}",
         "[1]".blue().bold(),
@@ -65,7 +70,10 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
         "-> ".green().bold(),
     );
 
-    let id = user_input()?.trim().to_string();
+    let id = user_input()
+        .map_err(|e| TErrors::SubMenu(e.to_string()))?
+        .trim()
+        .to_string();
 
     if id.contains('1') {
         show_todos(todos);
@@ -86,7 +94,7 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
         set_priority(todos)?;
         Ok(true)
     } else if id.contains('7') {
-        sorting_control(todos)?;
+        sorting_menu(todos)?;
         Ok(true)
     } else {
         Ok(false)
@@ -94,12 +102,18 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool, Box<dyn std::error::Error
 }
 
 /// Add todo into `Vec<Todo>`
-pub fn add_todo(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn add_todo(td: &mut Vec<Todo>) -> Result<()> {
     print!("{}{}", "Title ".white().bold(), "-> ".green().bold());
-    let title = user_input()?.trim().to_string();
+    let title = user_input()
+        .map_err(|e| TErrors::AddTodo(e.to_string()))?
+        .trim()
+        .to_string();
 
     print!("{}{}", "Description ".white().bold(), "-> ".green().bold());
-    let desc = user_input()?.trim().to_string();
+    let desc = user_input()
+        .map_err(|e| TErrors::AddTodo(e.to_string()))?
+        .trim()
+        .to_string();
 
     td.push(Todo::new(
         title,
@@ -171,7 +185,7 @@ pub fn show_todos(todos: &mut [Todo]) {
 }
 
 /// Removes todo with the given ID from the list
-pub fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn remove_todo(todos: &mut Vec<Todo>) -> Result<()> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -180,7 +194,12 @@ pub fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Erro
     );
 
     // Get ID from user and parse it into usize
-    let rm = user_input()?.trim().to_string().parse::<usize>()?;
+    let rm = user_input()
+        .map_err(|e| TErrors::RemoveTodo(e.to_string()))?
+        .trim()
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| TErrors::ParseID)?;
 
     // Check if `Vec<Todo>` is not empty and remove the Todo
     if rm < todos.len() && !todos.is_empty() {
@@ -191,7 +210,7 @@ pub fn remove_todo(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Erro
 }
 
 /// Update todo with the given ID
-pub fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn update_todo(todos: &mut [Todo]) -> Result<()> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -208,10 +227,17 @@ pub fn update_todo(todos: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>>
     print!("{}{}", "Description ".white().bold(), "-> ".white().bold());
 
     // Get Desc from user
-    let desc = user_input()?.trim().to_string();
+    let desc = user_input()
+        .map_err(|e| TErrors::UpdateTodo(e.to_string()))?
+        .trim()
+        .to_string();
 
     // Parse ID string into a usize
-    let id = id.trim().to_string().parse::<usize>()?;
+    let id = id
+        .trim()
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| TErrors::ParseID)?;
 
     // Find the ID and update it with the given values
     for (i, z) in todos.iter_mut().enumerate() {
@@ -233,7 +259,7 @@ pub fn save_and_exit(todos: &mut Vec<Todo>) {
 }
 
 /// Mark todo as done
-pub fn set_done(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn set_done(td: &mut [Todo]) -> Result<()> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -242,13 +268,19 @@ pub fn set_done(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Get ID from user and parse it into usize
-    let id = user_input()?.trim().to_string().parse::<usize>()?;
+    let id = user_input()
+        .map_err(|e| TErrors::SetDone(e.to_string()))?
+        .trim()
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| TErrors::ParseID)?;
+
     td[id].done = true;
 
     Ok(())
 }
 /// Mark todo as undone
-pub fn set_undone(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn set_undone(td: &mut [Todo]) -> Result<()> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -257,7 +289,13 @@ pub fn set_undone(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Get ID from user and parse it into usize
-    let id = user_input()?.trim().to_string().parse::<usize>()?;
+    let id = user_input()
+        .map_err(|e| TErrors::SetUnDone(e.to_string()))?
+        .trim()
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| TErrors::ParseID)?;
+
     // Set todo to false
     td[id].done = false;
 
@@ -274,7 +312,7 @@ pub fn get_priority(pr: &Priority) -> ColoredString {
 }
 
 /// Set priority of the todo
-pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
+pub fn set_priority(td: &mut [Todo]) -> Result<()> {
     print!(
         "\n{} {}{}",
         "ID".red().bold(),
@@ -282,7 +320,12 @@ pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
         "-> ".green().bold()
     );
     // Get id from the user
-    let id = user_input()?.trim().to_string().parse::<usize>()?;
+    let id = user_input()
+        .map_err(|e| TErrors::SetPriority(e.to_string()))?
+        .trim()
+        .to_string()
+        .parse::<usize>()
+        .map_err(|_| TErrors::ParseID)?;
 
     // Display menu priority
     print!(
@@ -297,7 +340,10 @@ pub fn set_priority(td: &mut [Todo]) -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Get priority from the user
-    let pr = user_input()?.trim().to_string();
+    let pr = user_input()
+        .map_err(|e| TErrors::SetPriority(e.to_string()))?
+        .trim()
+        .to_string();
 
     if pr.contains('1') {
         td[id].time = Priority::LOW;

@@ -1,28 +1,29 @@
 use std::fs;
 
+use anyhow::Result;
 use csv::{Reader, Writer};
 use directories::BaseDirs;
 
 use colored::Colorize;
 
-use crate::{todos::Todo, user_input};
+use crate::{errors::TErrors, todos::Todo, user_input};
 
 // Read todos from a file
-pub fn read_from_file() -> Result<Vec<Todo>, Box<dyn std::error::Error>> {
+pub fn read_from_file() -> Result<Vec<Todo>> {
     // Get todos file
     let path = BaseDirs::new().unwrap().config_dir().join("rtodo/db.json");
     // Read todos from the file as a string
     let td_str = std::fs::read_to_string(path)?;
 
     // Create a vector of todos
-    let todos: Vec<Todo> = serde_json::from_str(&td_str)?;
+    let todos: Vec<Todo> = serde_json::from_str(&td_str).map_err(|_| TErrors::ReadFromFile)?;
 
     // return todos
     Ok(todos)
 }
 
 // Write todos into a file
-pub fn write_to_file(todos: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn write_to_file(todos: &Vec<Todo>) -> Result<()> {
     // Get the .config directory on the Linux system
     let path = BaseDirs::new().unwrap().config_dir().join("rtodo");
 
@@ -32,12 +33,13 @@ pub fn write_to_file(todos: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>
     }
 
     // Write todos into the file
-    std::fs::write(path.join("db.json"), serde_json::to_string(&todos)?)?;
+    std::fs::write(path.join("db.json"), serde_json::to_string(&todos)?)
+        .map_err(|_| TErrors::WriteToFile)?;
     Ok(())
 }
 
 /// Import menu
-pub fn import_menu(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn import_menu(td: &mut Vec<Todo>) -> Result<()> {
     print!("{}", "Format to import: ".magenta());
     print!(
         "\n{}{} {}{} {}",
@@ -48,7 +50,10 @@ pub fn import_menu(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>>
         " -> ".green().bold()
     );
 
-    let format = user_input()?.trim().to_string();
+    let format = user_input()
+        .map_err(|e| TErrors::ImportMenu(e.to_string()))?
+        .trim()
+        .to_string();
 
     if format.contains('1') {
         print!("{} {}", "File Name".white().bold(), " -> ".green().bold());
@@ -64,7 +69,7 @@ pub fn import_menu(td: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>>
 }
 
 /// Export menu
-pub fn export_menu(td: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn export_menu(td: &Vec<Todo>) -> Result<()> {
     print!("{}", "Format to export: ".magenta());
     print!(
         "\n{}{} {}{} {}",
@@ -75,7 +80,10 @@ pub fn export_menu(td: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
         " -> ".green().bold()
     );
 
-    let format = user_input()?.trim().to_string();
+    let format = user_input()
+        .map_err(|e| TErrors::ExportMenu(e.to_string()))?
+        .trim()
+        .to_string();
 
     if format.contains('1') {
         print!("{} {}", "File Name".white().bold(), " -> ".green().bold());
@@ -91,9 +99,9 @@ pub fn export_menu(td: &Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 /// Export todos into CSV file
-pub fn export_to_csv(td: &[Todo], name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn export_to_csv(td: &[Todo], name: &str) -> Result<()> {
     // Prepare CSV file
-    let mut cs_writer = Writer::from_path(name)?;
+    let mut cs_writer = Writer::from_path(name).map_err(|_| TErrors::WriteToFile)?;
 
     // Write into the file
     for t in td {
@@ -105,17 +113,17 @@ pub fn export_to_csv(td: &[Todo], name: &str) -> Result<(), Box<dyn std::error::
 }
 
 /// Export todos into the JSON file
-fn export_to_json(td: &Vec<Todo>, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn export_to_json(td: &Vec<Todo>, name: &str) -> Result<()> {
     // Write data to the file
-    std::fs::write(name, serde_json::to_string_pretty(td)?)?;
+    std::fs::write(name, serde_json::to_string_pretty(td)?).map_err(|_| TErrors::WriteToFile)?;
 
     Ok(())
 }
 
 /// Import todos from the JSON file
-fn import_from_json(td: &mut Vec<Todo>, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn import_from_json(td: &mut Vec<Todo>, name: &str) -> Result<()> {
     // Read contents of file
-    let dt = fs::read_to_string(name)?;
+    let dt = fs::read_to_string(name).map_err(|_| TErrors::ReadFromFile)?;
 
     // Deserialize data into the vector
     let rs: Vec<Todo> = serde_json::from_str(&dt)?;
@@ -127,9 +135,9 @@ fn import_from_json(td: &mut Vec<Todo>, name: &str) -> Result<(), Box<dyn std::e
 }
 
 /// Import from CSV file
-pub fn import_from_csv(td: &mut Vec<Todo>, name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn import_from_csv(td: &mut Vec<Todo>, name: &str) -> Result<()> {
     // Reaad CSV file
-    let mut read_csv = Reader::from_path(name)?;
+    let mut read_csv = Reader::from_path(name).map_err(|_| TErrors::WriteToFile)?;
 
     // Get an iterator
     let it = read_csv.deserialize::<Vec<Todo>>();
