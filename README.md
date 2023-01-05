@@ -1,6 +1,6 @@
 [![crates.io](https://img.shields.io/crates/v/rtodo)](https://crates.io/crates/rtodo)
 ![GitHub](https://img.shields.io/github/license/tiagorcorreia/rtodo)
-![maintenance](https://img.shields.io/maintenance/yes/2022)
+![maintenance](https://img.shields.io/maintenance/yes/2023)
 [![contributors](https://img.shields.io/github/contributors/tiagorcorreia/rtodo)](https://github.com/hoodie/notify-rust/graphs/contributors)
 
 # A simple To-Do list manager written in Rust
@@ -21,6 +21,8 @@ Feel free to open a pull request to improve the code, add new features, and help
 - Set Priority
 - Status Done/Undone
 - Sort by priority and status
+- Import from CSV/JSON
+- Export to CSV/JSON
 
 ## Screenshots
 
@@ -75,11 +77,10 @@ Run the program
 
 ## Roadmap
 
-- mark todo as done
+- Better error handling
+- Code improvement
 
-- Define the priority of todo
 
-- better error handling
 
 
 
