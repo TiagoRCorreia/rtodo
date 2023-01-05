@@ -1,7 +1,9 @@
 use clap::{Parser, Subcommand};
 
+use crate::persistence::{export_menu, import_menu};
 use crate::todos::Todo;
 use crate::{add_todo, remove_todo, save_and_exit, show_todos, update_todo};
+use anyhow::Result;
 
 #[derive(Parser)]
 #[command(author,version,about,long_about = None)]
@@ -21,10 +23,14 @@ enum TodoCommands {
     Update,
     /// Remove todo
     Remove,
+    /// Import todo
+    Import,
+    /// Export todo
+    Export,
 }
 
 /// Execute a command from the command line
-pub fn execute_commands(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn execute_commands(todos: &mut Vec<Todo>) -> Result<()> {
     let cm = Cli::parse();
     match &cm.sub_commands {
         Some(TodoCommands::Show) => {
@@ -45,6 +51,16 @@ pub fn execute_commands(todos: &mut Vec<Todo>) -> Result<(), Box<dyn std::error:
         }
         Some(TodoCommands::Remove) => {
             remove_todo(todos)?;
+            save_and_exit(todos);
+            Ok(())
+        }
+        Some(TodoCommands::Export) => {
+            export_menu(todos)?;
+            save_and_exit(todos);
+            Ok(())
+        }
+        Some(TodoCommands::Import) => {
+            import_menu(todos)?;
             save_and_exit(todos);
             Ok(())
         }

@@ -2,7 +2,7 @@
 name = "rtodo"
 version = "0.1.3"
 edition = "2021"
-description = "A very simple to-do list manager"
+description = "A simple to-do list manager"
 keywords = ["todo","manager","to-do-list"]
 readme = "README.md"
 license = "MIT"
