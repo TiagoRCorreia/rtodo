@@ -8,9 +8,9 @@
 //! add new features and help me learn Rust.
 
 use colored::Colorize;
+use crossterm::{cursor, terminal, ExecutableCommand};
 use rtodo::commands::execute_commands;
 
-use std::process::Command;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc,
@@ -54,7 +54,12 @@ fn main() {
         // Handler loop
         while running.load(Ordering::SeqCst) {
             // Clear the screen
-            Command::new("clear").status().unwrap();
+            // Command::new("clear").status().unwrap();
+            std::io::stdout()
+                .execute(terminal::Clear(terminal::ClearType::All))
+                .unwrap()
+                .execute(cursor::MoveTo(0, 0))
+                .unwrap();
 
             // Show main menu
             main_menu();
@@ -74,7 +79,7 @@ fn main() {
 
             // Open sub menu / show todos
             if user.contains('1') {
-                show_todos(&mut todos);
+                show_todos(&mut todos).unwrap();
 
                 // Display the sub menu in a loop
                 while let Ok(e) = sub_menu(&mut todos) {
@@ -82,7 +87,7 @@ fn main() {
                     if !e {
                         break;
                     }
-                    show_todos(&mut todos);
+                    show_todos(&mut todos).unwrap();
                 }
             // add todo
             } else if user.contains('2') {
@@ -91,13 +96,13 @@ fn main() {
                 }
             // update todo
             } else if user.contains('3') {
-                show_todos(&mut todos);
+                show_todos(&mut todos).unwrap();
                 if let Err(e) = update_todo(&mut todos) {
                     eprintln!("{e}");
                 }
             // remove todo
             } else if user.contains('4') {
-                show_todos(&mut todos);
+                show_todos(&mut todos).unwrap();
                 if let Err(e) = remove_todo(&mut todos) {
                     eprintln!("{e}");
                 }

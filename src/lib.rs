@@ -1,7 +1,7 @@
 use colored::{ColoredString, Colorize};
+use crossterm::{cursor, terminal, ExecutableCommand};
 
 use std::io::{self, Write};
-use std::process::Command;
 
 use anyhow::Result;
 use chrono::Utc;
@@ -76,7 +76,7 @@ pub fn sub_menu(todos: &mut Vec<Todo>) -> Result<bool> {
         .to_string();
 
     if id.contains('1') {
-        show_todos(todos);
+        show_todos(todos)?;
         Ok(false)
     } else if id.contains('2') {
         add_todo(todos)?;
@@ -126,9 +126,11 @@ pub fn add_todo(td: &mut Vec<Todo>) -> Result<()> {
 }
 
 /// Show todos in a formatted table
-pub fn show_todos(todos: &mut [Todo]) {
+pub fn show_todos(todos: &mut [Todo]) -> Result<()> {
     // Clear the screen
-    Command::new("clear").status().unwrap();
+    std::io::stdout()
+        .execute(terminal::Clear(terminal::ClearType::All))?
+        .execute(cursor::MoveTo(0, 0))?;
 
     println!(
         "{:^10} {:^40} {:^40} {:^10} {:^32}",
@@ -182,6 +184,8 @@ pub fn show_todos(todos: &mut [Todo]) {
             );
         }
     }
+
+    Ok(())
 }
 
 /// Removes todo with the given ID from the list
